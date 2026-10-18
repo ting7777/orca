@@ -9,6 +9,9 @@ test('Gitea issues appear as tasks and can seed a workspace', async ({
   seededRepoPath
 }) => {
   await waitForSessionReady(orcaPage)
+  await expect
+    .poll(() => orcaPage.evaluate(() => window.__store?.getState().preflightStatusChecked))
+    .toBe(true)
   await electronApp.evaluate(({ ipcMain }) => {
     ipcMain.removeHandler('gitea:listIssues')
     ipcMain.handle('gitea:listIssues', () => [
