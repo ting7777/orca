@@ -111,7 +111,7 @@ async function requestJsonAtBase<T>(
   }
 }
 
-function requestJson<T>(
+export function requestJson<T>(
   repo: GiteaRepoRef,
   path: string,
   options: RequestOptions = {},
@@ -120,7 +120,7 @@ function requestJson<T>(
   return requestJsonAtBase(configuredApiBaseUrl(repo), path, options, throwOnFailure)
 }
 
-function encodedRepoPath(repo: GiteaRepoRef): string {
+export function encodedRepoPath(repo: GiteaRepoRef): string {
   return `${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}`
 }
 

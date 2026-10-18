@@ -46,7 +46,7 @@ export function useTaskPageRuntimeHosts(model: TaskPageRepoSelectionModel) {
   )
   const taskSourceRepoContexts = useMemo(
     () =>
-      taskSource === 'github' || taskSource === 'gitlab'
+      taskSource === 'github' || taskSource === 'gitlab' || taskSource === 'gitea'
         ? selectedRepos
             .map((repo) => getTaskPageRepoSourceContext(repo, taskSource))
             .filter((context): context is TaskSourceContext => context !== null)
@@ -80,7 +80,7 @@ export function useTaskPageRuntimeHosts(model: TaskPageRepoSelectionModel) {
     [hostRegistryById]
   )
   const runtimeTaskSourceHostIds = useMemo(() => {
-    if (taskSource !== 'github' && taskSource !== 'gitlab') {
+    if (taskSource !== 'github' && taskSource !== 'gitlab' && taskSource !== 'gitea') {
       return []
     }
     const hostIds = new Set<TaskSourceContext['hostId']>()

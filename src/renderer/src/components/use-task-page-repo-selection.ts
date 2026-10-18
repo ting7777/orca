@@ -140,6 +140,7 @@ export function useTaskPageRepoSelection(model: TaskPageStoreBindingsModel) {
         preferredVisibleTaskProviders,
         {
           gitlabInstalled: preflightStatusCurrent && preflightStatus?.glab?.installed === true,
+          giteaConfigured: preflightStatusCurrent && preflightStatus?.gitea?.configured === true,
           linearConnected: linearConnected === true
         },
         defaultTaskSource
@@ -149,7 +150,8 @@ export function useTaskPageRepoSelection(model: TaskPageStoreBindingsModel) {
       linearConnected,
       preferredVisibleTaskProviders,
       preflightStatusCurrent,
-      preflightStatus?.glab?.installed
+      preflightStatus?.glab?.installed,
+      preflightStatus?.gitea?.configured
     ]
   )
   const sourceOptions = getSourceOptions()

@@ -23,6 +23,7 @@ function getConnectStepState(props: ConnectStepProps): 'in-progress' | 'done' | 
 export function CodeHostSetupSteps(
   props: ConnectStepProps & {
     providerLabel: string
+    connectionDescription?: string
     unavailable?: boolean
     onOpenIntegrations: () => void
     onRetryConnection: () => void
@@ -33,10 +34,11 @@ export function CodeHostSetupSteps(
         'auto.components.settings.TasksPane.connectionCheckUnavailable',
         "Orca couldn't check this connection. Try again, or open Integrations for setup details."
       )
-    : translate(
+    : (props.connectionDescription ??
+      translate(
         'auto.components.settings.TasksPane.connectCodeHostDescription',
         'Install and authenticate the CLI under Integrations so Orca can load issues.'
-      )
+      ))
 
   return (
     <ol className="divide-y divide-border/50">

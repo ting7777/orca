@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Github, Gitlab } from 'lucide-react'
+import { Github, Gitlab, GitFork } from 'lucide-react'
 import type { GlobalSettings } from '../../../../shared/global-settings-types'
 import type { TaskProvider } from '../../../../shared/task-providers'
 import {
@@ -65,6 +65,11 @@ const PROVIDER_META: Record<
       )
     },
     Icon: ({ className }) => <Gitlab className={className} />
+  },
+  gitea: {
+    label: 'Gitea',
+    description: 'Browse Gitea issues and start workspaces from them.',
+    Icon: ({ className }) => <GitFork className={className} />
   },
   linear: {
     get label() {
@@ -230,6 +235,11 @@ export function TasksPane({ settings, updateSettings }: TasksPaneProps): React.J
                 ) : (
                   <CodeHostSetupSteps
                     providerLabel={meta.label}
+                    connectionDescription={
+                      provider === 'gitea'
+                        ? 'Configure a Gitea API token under Integrations so Orca can load issues.'
+                        : undefined
+                    }
                     connected={readiness.connected}
                     checking={readiness.checking}
                     unavailable={readiness.unavailable}

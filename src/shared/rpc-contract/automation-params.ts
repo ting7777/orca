@@ -86,6 +86,14 @@ export const TaskProviderIdentity = z
       .passthrough(),
     z
       .object({
+        provider: z.literal('gitea'),
+        owner: GithubIdentityField,
+        repo: GithubIdentityField,
+        host: GithubIdentityField
+      })
+      .passthrough(),
+    z
+      .object({
         provider: z.literal('linear'),
         workspaceId: z.string().nullable().optional(),
         workspaceName: z.string().nullable().optional(),
@@ -108,7 +116,7 @@ export const TaskProviderIdentity = z
 export const TaskSourceContext = z
   .object({
     kind: z.literal('task-source'),
-    provider: z.enum(['github', 'gitlab', 'linear', 'jira']),
+    provider: z.enum(['github', 'gitlab', 'gitea', 'linear', 'jira']),
     projectId: requiredString('Missing source project id'),
     hostId: ExecutionHostId,
     projectHostSetupId: OptionalNullablePlainString,

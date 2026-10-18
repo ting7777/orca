@@ -69,7 +69,7 @@ export function SelectionIcon({
   if (kind === 'gitlab-mr') {
     return <GitMerge className="size-3.5 shrink-0 text-muted-foreground" />
   }
-  if (kind === 'github-issue' || kind === 'gitlab-issue') {
+  if (kind === 'github-issue' || kind === 'gitlab-issue' || kind === 'gitea-issue') {
     return <CircleDot className="size-3.5 shrink-0 text-muted-foreground" />
   }
   if (kind === 'branch') {

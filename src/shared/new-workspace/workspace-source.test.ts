@@ -134,6 +134,17 @@ describe('workspace source policy', () => {
       kind: 'gitlab-issue',
       label: '#7 Self hosted'
     })
+    expect(
+      buildWorkspaceSourceSelection({
+        linkedWorkItem: {
+          provider: 'gitea',
+          type: 'issue',
+          number: 8,
+          title: 'Forge issue',
+          url: 'https://git.example/team/repo/issues/8'
+        }
+      })
+    ).toMatchObject({ kind: 'gitea-issue', label: '#8 Forge issue' })
     expect(shouldApplyWorkspaceSourceAutoName({ currentName: '#42', lastAutoName: 'old' })).toBe(
       true
     )

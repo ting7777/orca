@@ -49,6 +49,7 @@ export function getTaskSourceContextSummary(args: {
   switch (args.provider) {
     case 'github':
     case 'gitlab':
+    case 'gitea':
       return getRepoBackedTaskSourceSummary(args)
     case 'linear':
       return getAccountBackedTaskSourceSummary(args.providerLabel, {
@@ -194,6 +195,8 @@ function getProviderIdentityLabel(
       return identity.namespace && identity.project
         ? `${identity.namespace}/${identity.project}`
         : (identity.projectId ?? null)
+    case 'gitea':
+      return `${identity.owner}/${identity.repo}`
     case 'linear':
       return identity.workspaceName ?? identity.workspaceId ?? null
     case 'jira':
@@ -311,6 +314,4 @@ function formatShortList(labels: readonly string[]): string {
   return `${labels[0]} +${labels.length - 1}`
 }
 
-function formatLongList(labels: readonly string[]): string {
-  return labels.join(', ')
-}
+const formatLongList = (labels: readonly string[]): string => labels.join(', ')
