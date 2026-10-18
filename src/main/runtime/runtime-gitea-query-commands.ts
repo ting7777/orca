@@ -1,5 +1,5 @@
 import type { Repo } from '../../shared/repo-types'
-import { listGiteaIssues } from '../gitea/issues'
+import { createGiteaIssue, listGiteaIssues } from '../gitea/issues'
 
 export class RuntimeGiteaQueryCommands {
   constructor(
@@ -22,6 +22,18 @@ export class RuntimeGiteaQueryCommands {
       state,
       page: Number.isSafeInteger(page) && page > 0 ? page : 1,
       limit: Number.isSafeInteger(limit) && limit > 0 ? Math.min(limit, 100) : 50
+    })
+  }
+
+  async createGiteaRepoIssue(
+    repoSelector: string,
+    title: string,
+    body: string
+  ): Promise<Awaited<ReturnType<typeof createGiteaIssue>>> {
+    const repo = await this.deps.resolveRepo(repoSelector)
+    return createGiteaIssue(repo.path, title, body, {
+      connectionId: repo.connectionId,
+      wslDistro: this.deps.getLocalGitArgs(repo)[0]?.wslDistro
     })
   }
 }

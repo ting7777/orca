@@ -75,3 +75,47 @@ export async function listGiteaIssues(
     ]
   })
 }
+
+export async function createGiteaIssue(
+  repoPath: string,
+  title: string,
+  body: string,
+  options: { connectionId?: string | null; wslDistro?: string } = {}
+): Promise<GiteaIssue> {
+  if (!title.trim()) {
+    throw new Error('Issue title is required')
+  }
+  if (!process.env.ORCA_GITEA_TOKEN?.trim()) {
+    throw new Error('Set ORCA_GITEA_TOKEN to create Gitea issues')
+  }
+  const repo = await getGiteaRepoRef(repoPath, options.connectionId, {
+    wslDistro: options.wslDistro
+  })
+  if (!repo) {
+    throw new Error('Gitea repository not found')
+  }
+  const issue = await requestJson<RawGiteaIssue>(
+    repo,
+    `/repos/${encodedRepoPath(repo)}/issues`,
+    { method: 'POST', body: { title: title.trim(), body } },
+    true
+  )
+  if (
+    !issue ||
+    typeof issue.number !== 'number' ||
+    !Number.isSafeInteger(issue.number) ||
+    issue.number < 1 ||
+    typeof issue.html_url !== 'string'
+  ) {
+    throw new Error('Gitea returned an invalid issue')
+  }
+  return {
+    number: issue.number,
+    title: typeof issue.title === 'string' ? issue.title : title.trim(),
+    state: 'open',
+    url: issue.html_url,
+    updatedAt: typeof issue.updated_at === 'string' ? issue.updated_at : new Date().toISOString(),
+    body,
+    labels: []
+  }
+}

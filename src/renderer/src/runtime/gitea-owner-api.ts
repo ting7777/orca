@@ -17,11 +17,24 @@ export function giteaApiFor(selector: GiteaIssueSelector): GiteaApi {
               page: args.page,
               limit: args.limit
             }
+          ),
+        createIssue: (args) =>
+          callRuntimeRpc(
+            { kind: 'environment', environmentId: target.environmentId },
+            'gitea.createIssue',
+            {
+              repo: `id:${args.sourceContext?.repoId || args.repoId}`,
+              title: args.title,
+              body: args.body
+            }
           )
       }
     }
     return window.api.gitea
   } catch (error) {
-    return { listIssues: () => Promise.reject(error) }
+    return {
+      listIssues: () => Promise.reject(error),
+      createIssue: () => Promise.reject(error)
+    }
   }
 }

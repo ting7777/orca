@@ -9,6 +9,12 @@ export function createGiteaApi(): GiteaApi {
         state: args.state,
         page: args.page,
         limit: args.limit
+      }),
+    createIssue: (args) =>
+      callRuntimeResult('gitea.createIssue', {
+        repo: `id:${args.repoId}`,
+        title: args.title,
+        body: args.body
       })
   }
 }

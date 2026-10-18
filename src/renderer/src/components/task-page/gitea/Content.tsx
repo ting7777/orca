@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowRight, ExternalLink, LoaderCircle, RefreshCw } from 'lucide-react'
+import { ArrowRight, ExternalLink, LoaderCircle, Plus, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import type { GiteaIssue } from '../../../../../shared/gitea-types'
 import type { TaskPageComposerActionsModel } from '../../use-task-page-composer-actions'
@@ -10,6 +10,7 @@ import { getLinkedWorkItemSuggestedName } from '@/lib/new-workspace'
 import { giteaApiFor } from '@/runtime/gitea-owner-api'
 import { getTaskPageRepoSourceContext } from '../../task-page-source-context'
 import { normalizeTaskRepoSelection } from '../../task-page-default-repo-selection'
+import { TaskPageGiteaCreateDialog } from './CreateDialog'
 
 export function TaskPageGiteaContent({
   model
@@ -33,6 +34,7 @@ export function TaskPageGiteaContent({
   const [issues, setIssues] = useState<(GiteaIssue & { repoId: string })[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
 
   useEffect(() => {
     let stale = false
@@ -131,6 +133,15 @@ export function TaskPageGiteaContent({
         </div>
         <Button
           variant="outline"
+          size="sm"
+          onClick={() => setCreateOpen(true)}
+          disabled={selectedRepos.length === 0}
+        >
+          <Plus className="size-4" />
+          Create task
+        </Button>
+        <Button
+          variant="outline"
           size="icon"
           onClick={() => setRefresh((value) => value + 1)}
           disabled={loading}
@@ -143,6 +154,15 @@ export function TaskPageGiteaContent({
           )}
         </Button>
       </div>
+      <TaskPageGiteaCreateDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        repos={selectedRepos}
+        onCreated={() => {
+          setState('open')
+          setRefresh((value) => value + 1)
+        }}
+      />
       <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-border/50 bg-muted/50 shadow-sm">
         <div className="grid grid-cols-[70px_minmax(0,1fr)_100px_80px] gap-3 border-b border-border/50 px-3 py-2 text-2xs font-semibold uppercase text-muted-foreground">
           <span>ID</span>

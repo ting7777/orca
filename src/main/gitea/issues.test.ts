@@ -4,7 +4,7 @@ const { gitExecFileAsyncMock } = vi.hoisted(() => ({ gitExecFileAsyncMock: vi.fn
 vi.mock('../git/runner', () => ({ gitExecFileAsync: gitExecFileAsyncMock }))
 
 import { _resetGiteaRepoRefCache } from './repository-ref'
-import { listGiteaIssues } from './issues'
+import { createGiteaIssue, listGiteaIssues } from './issues'
 
 describe('Gitea issues', () => {
   beforeEach(() => {
@@ -65,5 +65,37 @@ describe('Gitea issues', () => {
       vi.fn(async () => new Response(null, { status: 401 }))
     )
     await expect(listGiteaIssues('/repo')).rejects.toThrow('HTTP 401')
+  })
+
+  it('creates an issue with the configured token', async () => {
+    const fetchMock = vi.fn(async (_url: URL, _request: RequestInit) =>
+      Response.json({
+        number: 14,
+        title: 'New task',
+        html_url: 'https://git.example.com/team/repo/issues/14',
+        updated_at: '2026-10-18T00:00:00Z'
+      })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    const previousToken = process.env.ORCA_GITEA_TOKEN
+    process.env.ORCA_GITEA_TOKEN = 'test-token'
+    try {
+      await expect(createGiteaIssue('/repo', ' New task ', 'Details')).resolves.toMatchObject({
+        number: 14,
+        title: 'New task',
+        body: 'Details'
+      })
+      const [url, request] = fetchMock.mock.calls[0]
+      expect(String(url)).toBe('https://git.example.com/api/v1/repos/team/repo/issues')
+      expect(request.method).toBe('POST')
+      expect(new Headers(request.headers).get('Authorization')).toBe('token test-token')
+      expect(JSON.parse(request.body)).toEqual({ title: 'New task', body: 'Details' })
+    } finally {
+      if (previousToken === undefined) {
+        delete process.env.ORCA_GITEA_TOKEN
+      } else {
+        process.env.ORCA_GITEA_TOKEN = previousToken
+      }
+    }
   })
 })

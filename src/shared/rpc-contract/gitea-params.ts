@@ -7,3 +7,9 @@ export const GiteaIssuesList = z.object({
   page: z.number().int().positive().optional(),
   limit: z.number().int().min(1).max(100).optional()
 })
+
+export const GiteaIssuesCreate = z.object({
+  repo: requiredString('Missing repo selector'),
+  title: requiredString('Issue title is required'),
+  body: z.string()
+})

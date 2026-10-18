@@ -244,7 +244,7 @@ import {
   GitTargetedRemote,
   WorktreeSelector as WorktreeSelectorOfGitParams
 } from './git-params'
-import { GiteaIssuesList } from './gitea-params'
+import { GiteaIssuesCreate, GiteaIssuesList } from './gitea-params'
 import { BindableAccounts, ValidateAccountBinding } from './github-account-binding-params'
 import { CreateIssue, Issue, IssueComment, UpdateIssue } from './github-issue-params'
 import {
@@ -939,6 +939,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'git.submoduleStatus': GitSubmoduleStatus,
   'git.unstage': GitFilePath,
   'git.upstreamStatus': GitTargetedRemote,
+  'gitea.createIssue': GiteaIssuesCreate,
   'gitea.listIssues': GiteaIssuesList,
   'github.addIssueComment': IssueComment,
   'github.addPRReviewComment': PRReviewComment,

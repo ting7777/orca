@@ -39,6 +39,8 @@ export type GiteaAuthStatus = {
 type RequestOptions = {
   searchParams?: Record<string, string | number>
   timeoutMs?: number
+  method?: 'POST'
+  body?: Record<string, string>
 }
 
 function envValue(name: string): string | null {
@@ -89,10 +91,13 @@ async function requestJsonAtBase<T>(
   const config = getAuthConfig()
   try {
     const response = await fetch(apiUrl(baseUrl, path, options.searchParams), {
+      method: options.method,
       headers: {
         Accept: 'application/json',
+        ...(options.body ? { 'Content-Type': 'application/json' } : {}),
         ...authHeaders(config)
       },
+      body: options.body ? JSON.stringify(options.body) : undefined,
       signal: AbortSignal.timeout(options.timeoutMs ?? REQUEST_TIMEOUT_MS)
     })
     if (!response.ok) {

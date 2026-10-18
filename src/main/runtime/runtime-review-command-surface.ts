@@ -36,7 +36,7 @@ type GitHubIssueCommentName =
   | 'addRepoPRReviewCommentReply'
 
 export type RuntimeReviewCommandSurface = {} & Pick<RuntimeGitLabQueryCommands, GitLabQueryName> &
-  Pick<RuntimeGiteaQueryCommands, 'listGiteaRepoIssues'> &
+  Pick<RuntimeGiteaQueryCommands, 'listGiteaRepoIssues' | 'createGiteaRepoIssue'> &
   Pick<RuntimeGitLabMutationCommands, GitLabMutationName> &
   Pick<RuntimeGitHubReviewQueryCommands, GitHubReviewQueryName> &
   Pick<RuntimeGitHubReviewMutationCommands, GitHubReviewMutationName> &
@@ -65,6 +65,7 @@ export function installRuntimeReviewCommandSurface(
   const projects = owners.gitHubProjects
   Object.assign(target, {
     listGiteaRepoIssues: owners.giteaQueries.listGiteaRepoIssues.bind(owners.giteaQueries),
+    createGiteaRepoIssue: owners.giteaQueries.createGiteaRepoIssue.bind(owners.giteaQueries),
     listGitLabRepoWorkItems: glq.listGitLabRepoWorkItems.bind(glq),
     listGitLabRepoMRs: glq.listGitLabRepoMRs.bind(glq),
     listGitLabRepoIssues: glq.listGitLabRepoIssues.bind(glq),
