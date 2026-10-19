@@ -89,7 +89,7 @@ describe('Gitea issues', () => {
       expect(String(url)).toBe('https://git.example.com/api/v1/repos/team/repo/issues')
       expect(request.method).toBe('POST')
       expect(new Headers(request.headers).get('Authorization')).toBe('token test-token')
-      expect(JSON.parse(request.body)).toEqual({ title: 'New task', body: 'Details' })
+      expect(JSON.parse(String(request.body))).toEqual({ title: 'New task', body: 'Details' })
     } finally {
       if (previousToken === undefined) {
         delete process.env.ORCA_GITEA_TOKEN
