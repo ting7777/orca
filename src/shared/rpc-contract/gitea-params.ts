@@ -13,3 +13,22 @@ export const GiteaIssuesCreate = z.object({
   title: requiredString('Issue title is required'),
   body: z.string()
 })
+
+export const GiteaIssueUpdates = z
+  .object({
+    title: z.string().trim().min(1).optional(),
+    body: z.string().optional(),
+    state: z.enum(['open', 'closed']).optional()
+  })
+  .refine((updates) => Object.keys(updates).length > 0)
+
+export const GiteaIssuesUpdate = z.object({
+  repo: requiredString('Missing repo selector'),
+  number: z.number().int().positive(),
+  updates: GiteaIssueUpdates
+})
+
+export const GiteaIssuesDelete = z.object({
+  repo: requiredString('Missing repo selector'),
+  number: z.number().int().positive()
+})

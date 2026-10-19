@@ -32,4 +32,52 @@ describe('Gitea RPC methods', () => {
     })
     expect(listGiteaRepoIssues).toHaveBeenCalledTimes(1)
   })
+
+  it('validates and routes issue edits and deletion', async () => {
+    const updateGiteaRepoIssue = vi.fn().mockResolvedValue({ number: 2 })
+    const deleteGiteaRepoIssue = vi.fn().mockResolvedValue(undefined)
+    const dispatcher = new RpcDispatcher({
+      // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the dispatcher only calls the mocked Gitea methods.
+      runtime: {
+        getRuntimeId: () => 'test-runtime',
+        updateGiteaRepoIssue,
+        deleteGiteaRepoIssue
+      } as unknown as OrcaRuntimeService,
+      methods: GITEA_METHODS
+    })
+    const request = (method: string, params: unknown) => ({
+      id: 'req-2',
+      authToken: 'tok',
+      method,
+      params
+    })
+    expect(
+      await dispatcher.dispatch(
+        request('gitea.updateIssue', {
+          repo: 'id:repo-1',
+          number: 2,
+          updates: { state: 'closed' }
+        })
+      )
+    ).toMatchObject({ ok: true })
+    expect(updateGiteaRepoIssue).toHaveBeenCalledWith('id:repo-1', 2, { state: 'closed' })
+    expect(
+      await dispatcher.dispatch(
+        request('gitea.updateIssue', {
+          repo: 'id:repo-1',
+          number: 2,
+          updates: { title: '' }
+        })
+      )
+    ).toMatchObject({ ok: false })
+    expect(
+      await dispatcher.dispatch(
+        request('gitea.deleteIssue', {
+          repo: 'id:repo-1',
+          number: 2
+        })
+      )
+    ).toMatchObject({ ok: true })
+    expect(deleteGiteaRepoIssue).toHaveBeenCalledWith('id:repo-1', 2)
+  })
 })

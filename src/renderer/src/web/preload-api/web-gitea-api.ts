@@ -15,6 +15,17 @@ export function createGiteaApi(): GiteaApi {
         repo: `id:${args.repoId}`,
         title: args.title,
         body: args.body
-      })
+      }),
+    updateIssue: (args) =>
+      callRuntimeResult('gitea.updateIssue', {
+        repo: `id:${args.repoId}`,
+        number: args.number,
+        updates: args.updates
+      }),
+    deleteIssue: (args) =>
+      callRuntimeResult('gitea.deleteIssue', {
+        repo: `id:${args.repoId}`,
+        number: args.number
+      }).then(() => undefined)
   }
 }

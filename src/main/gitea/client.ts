@@ -39,8 +39,8 @@ export type GiteaAuthStatus = {
 type RequestOptions = {
   searchParams?: Record<string, string | number>
   timeoutMs?: number
-  method?: 'POST'
-  body?: Record<string, string>
+  method?: 'POST' | 'PATCH' | 'DELETE'
+  body?: Record<string, unknown>
 }
 
 function envValue(name: string): string | null {
@@ -105,6 +105,9 @@ async function requestJsonAtBase<T>(
       if (throwOnFailure) {
         throw new Error(`Gitea request failed: HTTP ${response.status}`)
       }
+      return null
+    }
+    if (response.status === 204) {
       return null
     }
     return (await response.json()) as T

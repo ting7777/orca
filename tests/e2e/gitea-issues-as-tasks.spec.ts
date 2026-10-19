@@ -16,7 +16,7 @@ test('Gitea issues appear as tasks and can seed a workspace', async ({
     let createdIssue: {
       number: number
       title: string
-      state: 'open'
+      state: 'open' | 'closed'
       url: string
       updatedAt: string
       body: string
@@ -47,6 +47,21 @@ test('Gitea issues appear as tasks and can seed a workspace', async ({
         labels: []
       }
       return createdIssue
+    })
+    ipcMain.removeHandler('gitea:updateIssue')
+    ipcMain.handle(
+      'gitea:updateIssue',
+      (_event, args: { updates: { title?: string; body?: string; state?: 'open' | 'closed' } }) => {
+        if (!createdIssue) {
+          throw new Error('Issue missing')
+        }
+        createdIssue = { ...createdIssue, ...args.updates }
+        return createdIssue
+      }
+    )
+    ipcMain.removeHandler('gitea:deleteIssue')
+    ipcMain.handle('gitea:deleteIssue', () => {
+      createdIssue = null
     })
   })
   await orcaPage.evaluate((repoPath) => {
@@ -127,6 +142,37 @@ test('Gitea issues appear as tasks and can seed a workspace', async ({
     'data-state',
     'closed'
   )
+  await orcaPage.locator('button[aria-label="View or edit Gitea issue #43"]').dispatchEvent('click')
+  await expect(orcaPage.getByRole('dialog', { name: 'Gitea issue #43' })).toBeVisible()
+  await orcaPage.evaluate(() => {
+    const title = document.getElementById('gitea-issue-title')
+    if (!(title instanceof HTMLInputElement)) {
+      throw new Error('Gitea issue title missing')
+    }
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(
+      title,
+      'Edited Gitea task'
+    )
+    title.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+  await orcaPage
+    .getByRole('dialog', { name: 'Gitea issue #43' })
+    .getByRole('button', { name: 'Save' })
+    .dispatchEvent('click')
+  await expect(orcaPage.getByText('Edited Gitea task')).toBeVisible()
+  await orcaPage.locator('button[aria-label="View or edit Gitea issue #43"]').dispatchEvent('click')
+  await orcaPage
+    .getByRole('dialog', { name: 'Gitea issue #43' })
+    .getByRole('button', { name: 'Delete', exact: true })
+    .dispatchEvent('click')
+  await expect(
+    orcaPage.getByText('Permanently delete this issue from Gitea? This cannot be undone.')
+  ).toBeVisible()
+  await orcaPage
+    .getByRole('dialog', { name: 'Gitea issue #43' })
+    .getByRole('button', { name: 'Delete issue' })
+    .dispatchEvent('click')
+  await expect(orcaPage.getByText('Edited Gitea task')).toHaveCount(0)
   expect(
     await electronApp.evaluate(({ BrowserWindow }) =>
       BrowserWindow.getAllWindows().every((window) => !window.isVisible() && !window.isFocused())

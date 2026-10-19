@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowRight, ExternalLink, LoaderCircle, Plus, RefreshCw } from 'lucide-react'
+import { ArrowRight, ExternalLink, LoaderCircle, Pencil, Plus, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import type { GiteaIssue } from '../../../../../shared/gitea-types'
 import type { TaskPageComposerActionsModel } from '../../use-task-page-composer-actions'
@@ -11,6 +11,7 @@ import { giteaApiFor } from '@/runtime/gitea-owner-api'
 import { getTaskPageRepoSourceContext } from '../../task-page-source-context'
 import { normalizeTaskRepoSelection } from '../../task-page-default-repo-selection'
 import { TaskPageGiteaCreateDialog } from './CreateDialog'
+import { TaskPageGiteaIssueDialog } from './IssueDialog'
 
 export function TaskPageGiteaContent({
   model
@@ -35,6 +36,7 @@ export function TaskPageGiteaContent({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
+  const [selectedIssue, setSelectedIssue] = useState<(GiteaIssue & { repoId: string }) | null>(null)
 
   useEffect(() => {
     let stale = false
@@ -163,6 +165,15 @@ export function TaskPageGiteaContent({
           setRefresh((value) => value + 1)
         }}
       />
+      {selectedIssue && (
+        <TaskPageGiteaIssueDialog
+          key={`${selectedIssue.repoId}:${selectedIssue.number}`}
+          issue={selectedIssue}
+          repos={selectedRepos}
+          onClose={() => setSelectedIssue(null)}
+          onChanged={() => setRefresh((value) => value + 1)}
+        />
+      )}
       <div className="flex min-h-0 flex-col overflow-hidden rounded-md border border-border/50 bg-muted/50 shadow-sm">
         <div className="grid grid-cols-[70px_minmax(0,1fr)_100px_80px] gap-3 border-b border-border/50 px-3 py-2 text-2xs font-semibold uppercase text-muted-foreground">
           <span>ID</span>
@@ -205,6 +216,14 @@ export function TaskPageGiteaContent({
                 {new Date(issue.updatedAt).toLocaleDateString()}
               </span>
               <div className="flex items-center justify-end gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label={`View or edit Gitea issue #${issue.number}`}
+                  onClick={() => setSelectedIssue(issue)}
+                >
+                  <Pencil className="size-3.5" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon-xs"

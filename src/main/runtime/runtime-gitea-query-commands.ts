@@ -1,5 +1,10 @@
 import type { Repo } from '../../shared/repo-types'
-import { createGiteaIssue, listGiteaIssues } from '../gitea/issues'
+import {
+  createGiteaIssue,
+  deleteGiteaIssue,
+  listGiteaIssues,
+  updateGiteaIssue
+} from '../gitea/issues'
 
 export class RuntimeGiteaQueryCommands {
   constructor(
@@ -32,6 +37,26 @@ export class RuntimeGiteaQueryCommands {
   ): Promise<Awaited<ReturnType<typeof createGiteaIssue>>> {
     const repo = await this.deps.resolveRepo(repoSelector)
     return createGiteaIssue(repo.path, title, body, {
+      connectionId: repo.connectionId,
+      wslDistro: this.deps.getLocalGitArgs(repo)[0]?.wslDistro
+    })
+  }
+
+  async updateGiteaRepoIssue(
+    repoSelector: string,
+    number: number,
+    updates: { title?: string; body?: string; state?: 'open' | 'closed' }
+  ): Promise<Awaited<ReturnType<typeof updateGiteaIssue>>> {
+    const repo = await this.deps.resolveRepo(repoSelector)
+    return updateGiteaIssue(repo.path, number, updates, {
+      connectionId: repo.connectionId,
+      wslDistro: this.deps.getLocalGitArgs(repo)[0]?.wslDistro
+    })
+  }
+
+  async deleteGiteaRepoIssue(repoSelector: string, number: number): Promise<void> {
+    const repo = await this.deps.resolveRepo(repoSelector)
+    await deleteGiteaIssue(repo.path, number, {
       connectionId: repo.connectionId,
       wslDistro: this.deps.getLocalGitArgs(repo)[0]?.wslDistro
     })

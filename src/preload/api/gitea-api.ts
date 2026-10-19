@@ -14,4 +14,11 @@ export type GiteaIssueSelector = {
 export type GiteaApi = {
   listIssues: (args: GiteaIssueSelector) => Promise<GiteaIssue[]>
   createIssue: (args: GiteaIssueSelector & { title: string; body: string }) => Promise<GiteaIssue>
+  updateIssue: (
+    args: GiteaIssueSelector & {
+      number: number
+      updates: { title?: string; body?: string; state?: 'open' | 'closed' }
+    }
+  ) => Promise<GiteaIssue>
+  deleteIssue: (args: GiteaIssueSelector & { number: number }) => Promise<void>
 }

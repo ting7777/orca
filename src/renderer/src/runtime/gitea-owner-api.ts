@@ -27,14 +27,32 @@ export function giteaApiFor(selector: GiteaIssueSelector): GiteaApi {
               title: args.title,
               body: args.body
             }
-          )
+          ),
+        updateIssue: (args) =>
+          callRuntimeRpc(
+            { kind: 'environment', environmentId: target.environmentId },
+            'gitea.updateIssue',
+            {
+              repo: `id:${args.sourceContext?.repoId || args.repoId}`,
+              number: args.number,
+              updates: args.updates
+            }
+          ),
+        deleteIssue: (args) =>
+          callRuntimeRpc(
+            { kind: 'environment', environmentId: target.environmentId },
+            'gitea.deleteIssue',
+            { repo: `id:${args.sourceContext?.repoId || args.repoId}`, number: args.number }
+          ).then(() => undefined)
       }
     }
     return window.api.gitea
   } catch (error) {
     return {
       listIssues: () => Promise.reject(error),
-      createIssue: () => Promise.reject(error)
+      createIssue: () => Promise.reject(error),
+      updateIssue: () => Promise.reject(error),
+      deleteIssue: () => Promise.reject(error)
     }
   }
 }

@@ -1,7 +1,13 @@
 import { ipcMain } from 'electron'
 import { resolve } from 'node:path'
 import { getRepoExecutionHostId } from '../../shared/execution-host'
-import { createGiteaIssue, listGiteaIssues } from '../gitea/issues'
+import { GiteaIssueUpdates, GiteaIssuesDelete } from '../../shared/rpc-contract/gitea-params'
+import {
+  createGiteaIssue,
+  deleteGiteaIssue,
+  listGiteaIssues,
+  updateGiteaIssue
+} from '../gitea/issues'
 import { getLocalProjectWorktreeGitOptions } from '../project-runtime-git-options'
 import type { Store } from '../persistence'
 import type { GiteaIssueSelector } from '../../preload/api/gitea-api'
@@ -44,6 +50,35 @@ export function registerGiteaHandlers(store: Store): void {
         throw new Error('Invalid Gitea issue')
       }
       return createGiteaIssue(repo.path, args.title, args.body, {
+        connectionId: repo.connectionId,
+        wslDistro: getLocalProjectWorktreeGitOptions(store, repo).wslDistro
+      })
+    }
+  )
+  ipcMain.handle(
+    'gitea:updateIssue',
+    async (
+      _event,
+      args: GiteaIssueSelector & {
+        number: number
+        updates: { title?: string; body?: string; state?: 'open' | 'closed' }
+      }
+    ) => {
+      const repo = getAuthorizedRepo(store, args)
+      const number = GiteaIssuesDelete.shape.number.parse(args.number)
+      const updates = GiteaIssueUpdates.parse(args.updates)
+      return updateGiteaIssue(repo.path, number, updates, {
+        connectionId: repo.connectionId,
+        wslDistro: getLocalProjectWorktreeGitOptions(store, repo).wslDistro
+      })
+    }
+  )
+  ipcMain.handle(
+    'gitea:deleteIssue',
+    async (_event, args: GiteaIssueSelector & { number: number }) => {
+      const repo = getAuthorizedRepo(store, args)
+      const number = GiteaIssuesDelete.shape.number.parse(args.number)
+      return deleteGiteaIssue(repo.path, number, {
         connectionId: repo.connectionId,
         wslDistro: getLocalProjectWorktreeGitOptions(store, repo).wslDistro
       })
