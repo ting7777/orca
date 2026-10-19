@@ -16,7 +16,13 @@ describe('task providers', () => {
   })
 
   it('falls back to all providers when none are visible', () => {
-    expect(normalizeVisibleTaskProviders([])).toEqual(['github', 'gitlab', 'linear', 'jira'])
+    expect(normalizeVisibleTaskProviders([])).toEqual([
+      'github',
+      'gitlab',
+      'gitea',
+      'linear',
+      'jira'
+    ])
   })
 
   it('restores a valid saved default when provider settings drifted', () => {
@@ -54,6 +60,16 @@ describe('task providers', () => {
         linearConnected: true
       })
     ).toEqual(['github', 'linear'])
+  })
+
+  it('shows Gitea after its existing connection is configured', () => {
+    expect(
+      filterAvailableTaskProviders(['github', 'gitea'], {
+        gitlabInstalled: false,
+        giteaConfigured: true,
+        linearConnected: false
+      })
+    ).toEqual(['github', 'gitea'])
   })
 
   it('keeps an available saved default visible when provider visibility drifted', () => {

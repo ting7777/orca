@@ -14,7 +14,7 @@ describe('shouldShowComposerBaseRefPicker', () => {
     ).toBe(true)
   })
 
-  it.each(['github-issue', 'gitlab-issue', 'linear', 'jira'] as const)(
+  it.each(['github-issue', 'gitlab-issue', 'gitea-issue', 'linear', 'jira'] as const)(
     'offers a base ref for a %s source',
     (smartNameSelectionKind) => {
       expect(

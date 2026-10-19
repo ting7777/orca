@@ -39,6 +39,8 @@ export type GiteaAuthStatus = {
 type RequestOptions = {
   searchParams?: Record<string, string | number>
   timeoutMs?: number
+  method?: 'POST' | 'PATCH' | 'DELETE'
+  body?: Record<string, unknown>
 }
 
 function envValue(name: string): string | null {
@@ -89,10 +91,13 @@ async function requestJsonAtBase<T>(
   const config = getAuthConfig()
   try {
     const response = await fetch(apiUrl(baseUrl, path, options.searchParams), {
+      method: options.method,
       headers: {
         Accept: 'application/json',
+        ...(options.body ? { 'Content-Type': 'application/json' } : {}),
         ...authHeaders(config)
       },
+      body: options.body ? JSON.stringify(options.body) : undefined,
       signal: AbortSignal.timeout(options.timeoutMs ?? REQUEST_TIMEOUT_MS)
     })
     if (!response.ok) {
@@ -100,6 +105,9 @@ async function requestJsonAtBase<T>(
       if (throwOnFailure) {
         throw new Error(`Gitea request failed: HTTP ${response.status}`)
       }
+      return null
+    }
+    if (response.status === 204) {
       return null
     }
     return (await response.json()) as T
@@ -111,7 +119,7 @@ async function requestJsonAtBase<T>(
   }
 }
 
-function requestJson<T>(
+export function requestJson<T>(
   repo: GiteaRepoRef,
   path: string,
   options: RequestOptions = {},
@@ -120,7 +128,7 @@ function requestJson<T>(
   return requestJsonAtBase(configuredApiBaseUrl(repo), path, options, throwOnFailure)
 }
 
-function encodedRepoPath(repo: GiteaRepoRef): string {
+export function encodedRepoPath(repo: GiteaRepoRef): string {
   return `${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}`
 }
 

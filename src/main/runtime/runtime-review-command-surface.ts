@@ -4,6 +4,7 @@ import type { RuntimeGitHubReviewMutationCommands } from './runtime-github-revie
 import type { RuntimeGitHubReviewQueryCommands } from './runtime-github-review-query-commands'
 import type { RuntimeGitLabMutationCommands } from './runtime-gitlab-mutation-commands'
 import type { RuntimeGitLabQueryCommands } from './runtime-gitlab-query-commands'
+import type { RuntimeGiteaQueryCommands } from './runtime-gitea-query-commands'
 
 type GitLabQueryName = Exclude<keyof RuntimeGitLabQueryCommands, 'constructor'>
 type GitLabMutationName = Exclude<keyof RuntimeGitLabMutationCommands, 'constructor'>
@@ -35,6 +36,10 @@ type GitHubIssueCommentName =
   | 'addRepoPRReviewCommentReply'
 
 export type RuntimeReviewCommandSurface = {} & Pick<RuntimeGitLabQueryCommands, GitLabQueryName> &
+  Pick<
+    RuntimeGiteaQueryCommands,
+    'listGiteaRepoIssues' | 'createGiteaRepoIssue' | 'updateGiteaRepoIssue' | 'deleteGiteaRepoIssue'
+  > &
   Pick<RuntimeGitLabMutationCommands, GitLabMutationName> &
   Pick<RuntimeGitHubReviewQueryCommands, GitHubReviewQueryName> &
   Pick<RuntimeGitHubReviewMutationCommands, GitHubReviewMutationName> &
@@ -43,6 +48,7 @@ export type RuntimeReviewCommandSurface = {} & Pick<RuntimeGitLabQueryCommands, 
 
 type RuntimeReviewCommandOwners = {
   gitLabQueries: RuntimeGitLabQueryCommands
+  giteaQueries: RuntimeGiteaQueryCommands
   gitLabMutations: RuntimeGitLabMutationCommands
   gitHubReviewQueries: RuntimeGitHubReviewQueryCommands
   gitHubReviewMutations: RuntimeGitHubReviewMutationCommands
@@ -61,6 +67,10 @@ export function installRuntimeReviewCommandSurface(
   const comments = owners.gitHubIssueComments
   const projects = owners.gitHubProjects
   Object.assign(target, {
+    listGiteaRepoIssues: owners.giteaQueries.listGiteaRepoIssues.bind(owners.giteaQueries),
+    createGiteaRepoIssue: owners.giteaQueries.createGiteaRepoIssue.bind(owners.giteaQueries),
+    updateGiteaRepoIssue: owners.giteaQueries.updateGiteaRepoIssue.bind(owners.giteaQueries),
+    deleteGiteaRepoIssue: owners.giteaQueries.deleteGiteaRepoIssue.bind(owners.giteaQueries),
     listGitLabRepoWorkItems: glq.listGitLabRepoWorkItems.bind(glq),
     listGitLabRepoMRs: glq.listGitLabRepoMRs.bind(glq),
     listGitLabRepoIssues: glq.listGitLabRepoIssues.bind(glq),

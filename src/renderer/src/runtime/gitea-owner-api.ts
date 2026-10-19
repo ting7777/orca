@@ -1,0 +1,58 @@
+import type { GiteaApi, GiteaIssueSelector } from '../../../preload/api/gitea-api'
+import { forgeCredentialTarget } from './forge-credential-target'
+import { callRuntimeRpc } from './runtime-rpc-client'
+
+export function giteaApiFor(selector: GiteaIssueSelector): GiteaApi {
+  try {
+    const target = forgeCredentialTarget(selector)
+    if (target.kind === 'environment') {
+      return {
+        listIssues: (args) =>
+          callRuntimeRpc(
+            { kind: 'environment', environmentId: target.environmentId },
+            'gitea.listIssues',
+            {
+              repo: `id:${args.sourceContext?.repoId || args.repoId}`,
+              state: args.state,
+              page: args.page,
+              limit: args.limit
+            }
+          ),
+        createIssue: (args) =>
+          callRuntimeRpc(
+            { kind: 'environment', environmentId: target.environmentId },
+            'gitea.createIssue',
+            {
+              repo: `id:${args.sourceContext?.repoId || args.repoId}`,
+              title: args.title,
+              body: args.body
+            }
+          ),
+        updateIssue: (args) =>
+          callRuntimeRpc(
+            { kind: 'environment', environmentId: target.environmentId },
+            'gitea.updateIssue',
+            {
+              repo: `id:${args.sourceContext?.repoId || args.repoId}`,
+              number: args.number,
+              updates: args.updates
+            }
+          ),
+        deleteIssue: (args) =>
+          callRuntimeRpc(
+            { kind: 'environment', environmentId: target.environmentId },
+            'gitea.deleteIssue',
+            { repo: `id:${args.sourceContext?.repoId || args.repoId}`, number: args.number }
+          ).then(() => undefined)
+      }
+    }
+    return window.api.gitea
+  } catch (error) {
+    return {
+      listIssues: () => Promise.reject(error),
+      createIssue: () => Promise.reject(error),
+      updateIssue: () => Promise.reject(error),
+      deleteIssue: () => Promise.reject(error)
+    }
+  }
+}

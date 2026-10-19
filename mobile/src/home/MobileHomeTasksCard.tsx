@@ -7,6 +7,7 @@ import { colors, radii, spacing } from '../theme/mobile-theme'
 const TASK_PROVIDER_LABELS: Record<TaskProvider, string> = {
   github: 'GitHub',
   gitlab: 'GitLab',
+  gitea: 'Gitea',
   linear: 'Linear',
   jira: 'Jira'
 }

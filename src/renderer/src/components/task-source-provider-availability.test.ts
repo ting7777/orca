@@ -64,6 +64,35 @@ describe('task source provider availability', () => {
     ).toEqual([{ hostId: 'local', reason: 'unsupported-provider' }])
   })
 
+  it('uses the Gitea connection status on the repository owner', () => {
+    expect(
+      getRepoBackedProviderAvailability({
+        provider: 'gitea',
+        contexts: [source('runtime:server')],
+        preflightReady: true,
+        preflightStatus: readyPreflight,
+        runtimePreflightStatusByHostId: new Map([
+          [
+            'runtime:server',
+            {
+              checked: true,
+              status: {
+                ...readyPreflight,
+                gitea: {
+                  configured: true,
+                  authenticated: false,
+                  account: null,
+                  baseUrl: null,
+                  tokenConfigured: true
+                }
+              }
+            }
+          ]
+        ])
+      })
+    ).toEqual([{ hostId: 'runtime:server', reason: 'missing-provider-auth' }])
+  })
+
   it('does not apply desktop preflight to runtime-owned sources', () => {
     expect(
       getRepoBackedProviderAvailability({

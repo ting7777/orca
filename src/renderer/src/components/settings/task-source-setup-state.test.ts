@@ -12,7 +12,7 @@ import {
   type TaskProviderReadiness
 } from './task-source-setup-state'
 
-const ORDER: readonly TaskProvider[] = ['github', 'gitlab', 'linear', 'jira']
+const ORDER: readonly TaskProvider[] = ['github', 'gitlab', 'gitea', 'linear', 'jira']
 
 function buildReadiness(
   overrides: Partial<Record<TaskProvider, Partial<TaskProviderReadiness>>> = {}
@@ -20,6 +20,7 @@ function buildReadiness(
   const base: Record<TaskProvider, TaskProviderReadiness> = {
     github: { connected: true, checking: false, visible: true },
     gitlab: { connected: true, checking: false, visible: true },
+    gitea: { connected: true, checking: false, visible: true },
     linear: {
       connected: true,
       checking: false,
